@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:latihan_ukk/login.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -93,7 +94,12 @@ class _RegisterState extends State<Register> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         backgroundColor: Colors.blue),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Login()),
+                      );
+                    },
                     child: Text(
                       "Register",
                       style: TextStyle(fontSize: 18, color: Colors.white),

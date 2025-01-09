@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 
 class Penjualan extends StatefulWidget {
   const Penjualan({super.key});
@@ -8,6 +9,57 @@ class Penjualan extends StatefulWidget {
 }
 
 class _PenjualanState extends State<Penjualan> {
+  var nama=[
+    {
+      'nama':'alpin'
+    },
+        {
+      'nama':'rafi'
+    },
+    {
+      'nama':'ageng'
+    },
+    {
+      'nama':'predi'
+    },
+    {
+      'nama':'irpan'
+    },
+    {
+      'nama':'eprim'
+    },
+    {
+      'nama':'nopal'
+    },
+    {
+      'nama':'rangga'
+    },
+    {
+      'nama':'cahaya'
+    },
+    {
+      'nama':'luiz'
+    },
+  ];
+  GridView  card(List data) {return GridView.count(
+                      crossAxisCount: 2,
+                      children: [
+                        ...List.generate(10, (index) {
+                          return Card(
+                            color: Colors.black,
+                            child: Text(
+                              data[index]['nama'],
+                              style: TextStyle(
+                                color: Colors.white
+                              ),
+                            ),
+                          );
+                        })
+                      ],
+                    );
+                  }
+  var selectedIndex = 0;
+  var _controller= PageController(initialPage: 0);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,59 +155,74 @@ class _PenjualanState extends State<Penjualan> {
           ),
         ],
       ),
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(color: Colors.grey.shade200),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Best Saller",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Makanan",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Minuman",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      "Dissert",
-                      style: TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      body: Column(
+        children: [
+          SlidingClippedNavBar(
+            onButtonPressed: (index) {
+              setState(() {
+                selectedIndex = index;
+              });
+              _controller.animateToPage(
+              selectedIndex,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutQuad
+            );
+          }, 
+          selectedIndex: selectedIndex, 
+          activeColor: Colors.orange,
+          barItems: [
+            BarItem(
+              title: "Best Seller",
+              icon: Icons.sell,
             ),
-          ],
-        ),
-      ),
+            BarItem(
+              title: "Makanan",
+              icon: Icons.food_bank,
+            ),
+            BarItem(
+              title: "Minuman",
+              icon: Icons.local_cafe,
+            ),
+            BarItem(
+              title: "Dissert",
+              icon: Icons.cake,
+            ),
+          ], 
+          ),
+          Expanded(
+            child: PageView(
+              physics: NeverScrollableScrollPhysics(),
+              controller: _controller,
+              children: [
+                Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: card(nama)
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: card(nama)
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: card(nama)
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  child: Center(
+                    child: card(nama)
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      )
     );
   }
 }
