@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:latihan_ukk/penjualan.dart';
+import 'package:latihan_ukk/produk/penjualan.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,6 +11,64 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  List<Map<String, dynamic>> User = [];
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool isLoading = false;
+
+  
+  void _login() async {
+  if (_usernameController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Username dan Password tidak boleh kosong'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    final response = await Supabase.instance.client
+        .from('user')
+        .select()
+        .eq('username', _usernameController.text.trim())
+        .eq('password', _passwordController.text.trim())
+        .single();
+
+    if (response != null) {
+      _usernameController.clear();
+      _passwordController.clear();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Penjualan()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Username atau Password salah'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Terjadi kesalahan: $error'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,8 +114,9 @@ class _LoginState extends State<Login> {
                   height: 30,
                 ),
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    hintText: "Email",
+                    hintText: "Username",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -69,6 +129,8 @@ class _LoginState extends State<Login> {
                   height: 30,
                 ),
                 TextField(
+                  controller: _passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Password",
                     border: OutlineInputBorder(
@@ -107,10 +169,7 @@ class _LoginState extends State<Login> {
                         ),
                         backgroundColor: Colors.blue),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Penjualan()),
-                      );
+                      _login();
                     },
                     child: Text(
                       "Login",

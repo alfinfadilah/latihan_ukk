@@ -56,7 +56,7 @@ class _RegisterState extends State<Register> {
                 ),
                 TextField(
                   decoration: InputDecoration(
-                    hintText: "Email",
+                    hintText: "Username",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -69,6 +69,7 @@ class _RegisterState extends State<Register> {
                   height: 30,
                 ),
                 TextField(
+                  obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Password",
                     border: OutlineInputBorder(
