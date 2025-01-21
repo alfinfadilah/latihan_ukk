@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/login.dart';
-import 'package:latihan_ukk/register.dart';
 
 class Myhomepage extends StatefulWidget {
   const Myhomepage({super.key});
@@ -10,6 +9,15 @@ class Myhomepage extends StatefulWidget {
 }
 
 class _MyhomepageState extends State<Myhomepage> {
+  List<Map<String, dynamic>> User = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,34 +75,6 @@ class _MyhomepageState extends State<Myhomepage> {
                 ),
                 SizedBox(
                   height: 20,
-                ),
-                Text(
-                  "OR",
-                  style: TextStyle(fontSize: 15),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.grey),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Register()),
-                      );
-                    },
-                    child: Text(
-                      "Register",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
                 ),
               ],
             ),

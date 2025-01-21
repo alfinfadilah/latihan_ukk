@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/login.dart';
-import 'package:latihan_ukk/tambah.dart';
+import 'package:latihan_ukk/produk/tambah.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:latihan_ukk/register.dart';
+import 'edit.dart';
 
 class Penjualan extends StatefulWidget {
-  const Penjualan({super.key});
+  final Map user;
+  const Penjualan({super.key, required this.user});
 
   @override
   State<Penjualan> createState() => _PenjualanState();
@@ -14,6 +17,7 @@ class Penjualan extends StatefulWidget {
 
 class _PenjualanState extends State<Penjualan> {
   List<Map<String, dynamic>> Barang = [];
+  List<Map<String, dynamic>> User= [];
 
   var jenis = [
     null,
@@ -40,6 +44,18 @@ class _PenjualanState extends State<Penjualan> {
     }
   }
 
+  Future<void> initialis() async {
+    try {
+      final response = await Supabase.instance.client.from('user').select();
+      // print('Response from Supabase: $response');
+      setState(() {
+        User = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
+  }
+
   Future<void> tambah(
       String NamaProduk, String Harga, String Stok, String Jenis) async {
     final response = await Supabase.instance.client.from('barang').insert([
@@ -50,6 +66,49 @@ class _PenjualanState extends State<Penjualan> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error add produk')),
+      );
+    }
+  }
+
+  Future<void> hapusBarang(int ProdukId) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('barang')
+          .delete()
+          .eq('ProdukId', ProdukId);
+      if (response != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Produk berhasil dihapus')),
+        );
+        initializeData();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal menghapus produk: $e')),
+      );
+    }
+  }
+
+  Future<void> tambahuser(String username, String password) async {
+    try {
+      final response = await Supabase.instance.client.from('user').insert([
+        {
+          'Username': username,
+          'Password': password,
+        }
+      ]);
+      if (response != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registrasi gagal: $e')),
       );
     }
   }
@@ -69,16 +128,16 @@ class _PenjualanState extends State<Penjualan> {
         ...List.generate(filterData.length, (index) {
           final barang = filterData[index];
           var iconBarang;
-          if (barang['Jenis']=='makanan') {
-            iconBarang= Icons.food_bank;
-          }else if(barang['Jenis']=='minuman'){
-            iconBarang=Icons.local_cafe;
-          }else{
-            iconBarang=Icons.cake;
+          if (barang['Jenis'] == 'makanan') {
+            iconBarang = Icons.food_bank;
+          } else if (barang['Jenis'] == 'minuman') {
+            iconBarang = Icons.local_cafe;
+          } else {
+            iconBarang = Icons.cake;
           }
           return Card(
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              color: Colors.grey.shade200,
+              color: Colors.white,
               child: LayoutBuilder(builder: (context, constraint) {
                 return Padding(
                   padding: EdgeInsets.all(8),
@@ -110,8 +169,12 @@ class _PenjualanState extends State<Penjualan> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
-                              onPressed: () {
-                                Navigator.pop(context);
+                              onPressed: () async {
+                                var result =
+                                    await Navigator.push(context, MaterialPageRoute(builder: (context)=> editproduk(barang: barang)));
+                                if (result == 'success') {
+                                  initializeData();
+                                }
                               },
                               icon: Icon(
                                 size: constraint.maxHeight / 4,
@@ -119,10 +182,35 @@ class _PenjualanState extends State<Penjualan> {
                                 color: Colors.blue,
                               )),
                           IconButton(
-                              onPressed: () {
-                                Navigator.pop(
-                                  context,
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Konfirmasi'),
+                                      content: Text(
+                                          'Apakah Anda yakin ingin menghapus produk ini?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: Text('Batal'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                              initializeData();
+                                              Navigator.pop(context, true);
+                                          },
+                                              
+                                          child: Text('Hapus'),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
+                                if (confirm == true) {
+                                  hapusBarang(barang['ProdukId']);
+                                }
                               },
                               icon: Icon(
                                 size: constraint.maxHeight / 4,
@@ -134,7 +222,10 @@ class _PenjualanState extends State<Penjualan> {
                       SizedBox(
                         width: 10,
                       ),
-                      Icon(iconBarang)
+                      Icon(
+                        iconBarang,
+                        size: constraint.maxHeight/3,
+                      ),
                     ],
                   ),
                 );
@@ -149,7 +240,9 @@ class _PenjualanState extends State<Penjualan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFAF3E0),
       drawer: Drawer(
+        backgroundColor: Colors.white,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -175,6 +268,15 @@ class _PenjualanState extends State<Penjualan> {
                 ],
               ),
             ),
+            widget.user['prefilage'] == 'admin' 
+            ?ListTile(
+              leading: Icon(Icons.person_add),
+              title: Text('register'),
+              onTap: () {
+                _AddUser(context);
+              },
+            )
+            : SizedBox(),
             ListTile(
               leading: Icon(Icons.home),
               title: Text('Home'),
@@ -193,7 +295,7 @@ class _PenjualanState extends State<Penjualan> {
               leading: Icon(Icons.logout),
               title: Text('Logout'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => Login()),
                 );
@@ -204,7 +306,8 @@ class _PenjualanState extends State<Penjualan> {
       ),
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF003366),
+        foregroundColor: Colors.white,
         elevation: 1,
         title: TextField(
           decoration: InputDecoration(
@@ -225,21 +328,21 @@ class _PenjualanState extends State<Penjualan> {
             onPressed: () {},
             icon: Icon(
               Icons.grid_view,
-              color: Colors.grey,
+              color: Colors.white,
             ),
           ),
           IconButton(
             onPressed: () {},
             icon: Icon(
               Icons.qr_code_scanner_rounded,
-              color: Colors.grey,
+              color: Colors.white,
             ),
           ),
           IconButton(
             onPressed: () {},
             icon: Icon(
               Icons.calculate,
-              color: Colors.grey,
+              color: Colors.white,
             ),
           ),
         ],
@@ -285,47 +388,6 @@ class _PenjualanState extends State<Penjualan> {
                 card('makanan'),
                 card('minuman'),
                 card('dissert'),
-                // for (int i = 0; i < 4; i++)
-                //   Container(
-                //     color: Colors.white,
-                //     child: Barang.isEmpty
-                //         ? const Center(
-                //             child: CircularProgressIndicator(),
-                //           )
-                //         : Center(
-                //             child: card(Barang),
-                //           ),
-                //   ),
-                // Container(
-                //   color: Colors.white,
-                //   child: Barang.isEmpty
-                //       ? const Center(
-                //           child: CircularProgressIndicator(),
-                //         )
-                //       : Center(
-                //           child: card(Barang),
-                //         ),
-                // ),
-                // Container(
-                //   color: Colors.white,
-                //   child: Barang.isEmpty
-                //       ? const Center(
-                //           child: CircularProgressIndicator(),
-                //         )
-                //       : Center(
-                //           child: card(Barang),
-                //         ),
-                // ),
-                // Container(
-                //   color: Colors.white,
-                //   child: Barang.isEmpty
-                //       ? const Center(
-                //           child: CircularProgressIndicator(),
-                //         )
-                //       : Center(
-                //           child: card(Barang),
-                //         ),
-                // ),
               ],
             ),
           ),
@@ -356,6 +418,21 @@ class _PenjualanState extends State<Penjualan> {
     );
     if (result == true) {
       initializeData();
+    }
+  }
+
+  void _AddUser(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return Register(onAddUser: (Username, Password,) {
+          tambahuser(Username, Password,);
+          Navigator.pop(context, true);
+        });
+      },
+    );
+    if (result == true) {
+      initialis();
     }
   }
 }

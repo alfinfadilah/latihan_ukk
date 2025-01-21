@@ -1,15 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latihan_ukk/login.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+  const Register({super.key, required this.onAddUser});
+
+  final Function(String, String) onAddUser;
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> tambahuser(String username, String password) async {
+    try {
+      final response = await Supabase.instance.client.from('user').insert([
+        {
+          'username': username,
+          'password': password,
+        }
+      ]);
+      if (response == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registrasi berhasil! Silakan login.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registrasi tidak berhasil'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Terjadi kesalahan: $Error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,35 +95,54 @@ class _RegisterState extends State<Register> {
                 SizedBox(
                   height: 30,
                 ),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: "Username",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.email),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white),
+                  child: TextFormField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                        labelText: 'Username',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(100)),
+                        fillColor: Colors.white,
+                        prefixIcon: Icon(Icons.email)),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'harga tidak boleh kosong';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 SizedBox(
                   height: 30,
                 ),
-                TextField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Password",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: Icon(Icons.lock),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white),
+                  child: TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(100)),
+                        fillColor: Colors.white,
+                        prefixIcon: Icon(Icons.lock)),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'harga tidak boleh kosong';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 SizedBox(
                   height: 10,
                 ),
+                
                 SizedBox(
                   height: 10,
                 ),
@@ -95,11 +155,18 @@ class _RegisterState extends State<Register> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                         backgroundColor: Colors.blue),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Login()),
-                      );
+                    onPressed: () async {
+                      final username = _usernameController.text.trim();
+                      final password = _passwordController.text.trim();
+
+                      if (username.isEmpty || password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Username dan Password tidak boleh kosong')),
+                        );
+                        return;
+                      }
+                      await tambahuser(username, password);
                     },
                     child: Text(
                       "Register",
@@ -129,9 +196,16 @@ class _RegisterState extends State<Register> {
                     onPressed: () {},
                     child: Row(
                       children: [
-                        SizedBox(width: 20,),
-                        FaIcon(FontAwesomeIcons.google, color: Colors.black,),
-                        SizedBox(width: 55,),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        FaIcon(
+                          FontAwesomeIcons.google,
+                          color: Colors.black,
+                        ),
+                        SizedBox(
+                          width: 55,
+                        ),
                         Text(
                           "Register With Google",
                           style: TextStyle(
@@ -142,7 +216,9 @@ class _RegisterState extends State<Register> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20,),
+                SizedBox(
+                  height: 20,
+                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -155,13 +231,17 @@ class _RegisterState extends State<Register> {
                     onPressed: () {},
                     child: Row(
                       children: [
-                        SizedBox(width: 20,),
+                        SizedBox(
+                          width: 20,
+                        ),
                         Icon(
                           Icons.facebook,
                           size: 30,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 50,),
+                        SizedBox(
+                          width: 50,
+                        ),
                         Text(
                           "Register With Facebook",
                           style: TextStyle(

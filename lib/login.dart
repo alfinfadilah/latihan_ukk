@@ -18,6 +18,7 @@ class _LoginState extends State<Login> {
 
   
   void _login() async {
+  var response;
   if (_usernameController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -33,7 +34,7 @@ class _LoginState extends State<Login> {
   });
 
   try {
-    final response = await Supabase.instance.client
+    response = await Supabase.instance.client
         .from('user')
         .select()
         .eq('username', _usernameController.text.trim())
@@ -43,9 +44,9 @@ class _LoginState extends State<Login> {
     if (response != null) {
       _usernameController.clear();
       _passwordController.clear();
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Penjualan()),
+        MaterialPageRoute(builder: (context) => Penjualan(user: response,)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +55,7 @@ class _LoginState extends State<Login> {
           backgroundColor: Colors.red,
         ),
       );
-    }
+    };
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
