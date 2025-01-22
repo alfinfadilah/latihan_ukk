@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/login.dart';
+import 'package:latihan_ukk/pelanggan/pelanggan.dart';
 import 'package:latihan_ukk/produk/tambah.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +10,7 @@ import 'edit.dart';
 
 class Penjualan extends StatefulWidget {
   final Map user;
+
   const Penjualan({super.key, required this.user});
 
   @override
@@ -271,9 +273,21 @@ class _PenjualanState extends State<Penjualan> {
             widget.user['prefilage'] == 'admin' 
             ?ListTile(
               leading: Icon(Icons.person_add),
-              title: Text('register'),
+              title: Text('register petugas'),
               onTap: () {
                 _AddUser(context);
+              },
+            )
+            : SizedBox(),
+            widget.user['prefilage'] == 'admin' 
+            ?ListTile(
+              leading: Icon(Icons.person_search),
+              title: Text('daftar pelanggan'),
+              onTap: () {
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PelangganListPage()),
+                );
               },
             )
             : SizedBox(),
@@ -362,7 +376,7 @@ class _PenjualanState extends State<Penjualan> {
             activeColor: Colors.orange,
             barItems: [
               BarItem(
-                title: "Best Seller",
+                title: "Seller",
                 icon: Icons.sell,
               ),
               BarItem(
@@ -374,7 +388,7 @@ class _PenjualanState extends State<Penjualan> {
                 icon: Icons.local_cafe,
               ),
               BarItem(
-                title: "Dissert",
+                title: "Dessert",
                 icon: Icons.cake,
               ),
             ],
@@ -387,7 +401,7 @@ class _PenjualanState extends State<Penjualan> {
                 card(),
                 card('makanan'),
                 card('minuman'),
-                card('dissert'),
+                card('dessert'),
               ],
             ),
           ),
