@@ -19,7 +19,7 @@ class Penjualan extends StatefulWidget {
 
 class _PenjualanState extends State<Penjualan> {
   List<Map<String, dynamic>> Barang = [];
-  List<Map<String, dynamic>> User= [];
+  List<Map<String, dynamic>> User = [];
 
   var jenis = [
     null,
@@ -172,8 +172,11 @@ class _PenjualanState extends State<Penjualan> {
                         children: [
                           IconButton(
                               onPressed: () async {
-                                var result =
-                                    await Navigator.push(context, MaterialPageRoute(builder: (context)=> editproduk(barang: barang)));
+                                var result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            editproduk(barang: barang)));
                                 if (result == 'success') {
                                   initializeData();
                                 }
@@ -200,10 +203,9 @@ class _PenjualanState extends State<Penjualan> {
                                         ),
                                         TextButton(
                                           onPressed: () {
-                                              initializeData();
-                                              Navigator.pop(context, true);
+                                            initializeData();
+                                            Navigator.pop(context, true);
                                           },
-                                              
                                           child: Text('Hapus'),
                                         ),
                                       ],
@@ -226,7 +228,7 @@ class _PenjualanState extends State<Penjualan> {
                       ),
                       Icon(
                         iconBarang,
-                        size: constraint.maxHeight/3,
+                        size: constraint.maxHeight / 3,
                       ),
                     ],
                   ),
@@ -263,48 +265,31 @@ class _PenjualanState extends State<Penjualan> {
                     'User Name',
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
-                  Text(
-                    'user@example.com',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
                 ],
               ),
             ),
-            widget.user['prefilage'] == 'admin' 
-            ?ListTile(
-              leading: Icon(Icons.person_add),
-              title: Text('register petugas'),
-              onTap: () {
-                _AddUser(context);
-              },
-            )
-            : SizedBox(),
-            widget.user['prefilage'] == 'admin' 
-            ?ListTile(
-              leading: Icon(Icons.person_search),
-              title: Text('daftar pelanggan'),
-              onTap: () {
-                Navigator.push(
+            widget.user['prefilage'] == 'admin'
+                ? ListTile(
+                    leading: Icon(Icons.person_add),
+                    title: Text('register petugas'),
+                    onTap: () {
+                      _AddUser(context);
+                    },
+                  )
+                : SizedBox(),
+            widget.user['prefilage'] == 'admin'
+                ? ListTile(
+                    leading: Icon(Icons.person_search),
+                    title: Text('daftar pelanggan'),
+                    onTap: () {
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => PelangganListPage()),
-                );
-              },
-            )
-            : SizedBox(),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
+                        MaterialPageRoute(
+                            builder: (context) => PelangganListPage()),
+                      );
+                    },
+                  )
+                : SizedBox(),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
@@ -341,13 +326,6 @@ class _PenjualanState extends State<Penjualan> {
           IconButton(
             onPressed: () {},
             icon: Icon(
-              Icons.grid_view,
-              color: Colors.white,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
               Icons.qr_code_scanner_rounded,
               color: Colors.white,
             ),
@@ -358,6 +336,11 @@ class _PenjualanState extends State<Penjualan> {
               Icons.calculate,
               color: Colors.white,
             ),
+          ),
+          IconButton(
+            onPressed: initializeData,
+            icon: const Icon(Icons.refresh),
+            color: Color(0xFFFAF3E0),
           ),
         ],
       ),
@@ -388,7 +371,7 @@ class _PenjualanState extends State<Penjualan> {
                 icon: Icons.local_cafe,
               ),
               BarItem(
-                title: "Dessert",
+                title: "Dissert",
                 icon: Icons.cake,
               ),
             ],
@@ -401,7 +384,7 @@ class _PenjualanState extends State<Penjualan> {
                 card(),
                 card('makanan'),
                 card('minuman'),
-                card('dessert'),
+                card('dissert'),
               ],
             ),
           ),
@@ -439,8 +422,14 @@ class _PenjualanState extends State<Penjualan> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return Register(onAddUser: (Username, Password,) {
-          tambahuser(Username, Password,);
+        return Register(onAddUser: (
+          Username,
+          Password,
+        ) {
+          tambahuser(
+            Username,
+            Password,
+          );
           Navigator.pop(context, true);
         });
       },

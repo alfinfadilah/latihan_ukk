@@ -1,6 +1,9 @@
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latihan_ukk/login.dart';
+import 'package:latihan_ukk/produk/penjualan.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Register extends StatefulWidget {
@@ -16,14 +19,14 @@ class _RegisterState extends State<Register> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final SingleValueDropDownController _prefilageController =
+      SingleValueDropDownController();
 
-  Future<void> tambahuser(String username, String password) async {
+  Future<void> tambahuser(
+      String username, String password, String prefilage) async {
     try {
       final response = await Supabase.instance.client.from('user').insert([
-        {
-          'username': username,
-          'password': password,
-        }
+        {'username': username, 'password': password, 'prefilage': prefilage}
       ]);
       if (response == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -32,10 +35,7 @@ class _RegisterState extends State<Register> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => Login()),
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -116,13 +116,14 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 SizedBox(
-                  height: 30,
+                  height: 15,
                 ),
                 Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(100),
                       color: Colors.white),
                   child: TextFormField(
+                    obscureText: true,
                     controller: _passwordController,
                     decoration: InputDecoration(
                         labelText: 'Password',
@@ -139,9 +140,30 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 15,
                 ),
-
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white),
+                  child: DropDownTextField(
+                    controller: _prefilageController,
+                    textFieldDecoration: const InputDecoration(
+                        labelText: 'Previlage',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.remove_red_eye)),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Jenis tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                    dropDownItemCount: 3,
+                    dropDownList: [
+                      DropDownValueModel(name: 'petugas', value: 'petugas'),
+                    ],
+                  ),
+                ),
                 SizedBox(
                   height: 10,
                 ),
@@ -157,97 +179,22 @@ class _RegisterState extends State<Register> {
                     onPressed: () async {
                       final username = _usernameController.text.trim();
                       final password = _passwordController.text.trim();
+                      final prefilage =
+                          _prefilageController.dropDownValue!.value;
 
                       if (username.isEmpty || password.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                              content: Text('Username dan Password tidak boleh kosong')),
+                              content: Text(
+                                  'Username dan Password tidak boleh kosong')),
                         );
                         return;
                       }
-                      await tambahuser(username, password);
+                      await tambahuser(username, password, prefilage);
                     },
                     child: Text(
                       "Register",
                       style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "OR",
-                  style: TextStyle(fontSize: 15),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.white),
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        FaIcon(
-                          FontAwesomeIcons.google,
-                          color: Colors.black,
-                        ),
-                        SizedBox(
-                          width: 55,
-                        ),
-                        Text(
-                          "Register With Google",
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.blue),
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Icon(
-                          Icons.facebook,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 50,
-                        ),
-                        Text(
-                          "Register With Facebook",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),

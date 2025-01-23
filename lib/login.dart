@@ -145,21 +145,6 @@ class _LoginState extends State<Login> {
                 SizedBox(
                   height: 10,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -175,71 +160,6 @@ class _LoginState extends State<Login> {
                     child: Text(
                       "Login",
                       style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "OR",
-                  style: TextStyle(fontSize: 15),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.white),
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20,),
-                        FaIcon(FontAwesomeIcons.google, color: Colors.black,),
-                        SizedBox(width: 55,),
-                        Text(
-                          "Login With Google",
-                          style: TextStyle(
-                            color: Colors.grey.shade800,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20,),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        backgroundColor: Colors.blue),
-                    onPressed: () {},
-                    child: Row(
-                      children: [
-                        SizedBox(width: 20,),
-                        Icon(
-                          Icons.facebook,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                        SizedBox(width: 50,),
-                        Text(
-                          "Login With Facebook",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                 ),

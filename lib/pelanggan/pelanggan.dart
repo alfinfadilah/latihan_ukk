@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/pelanggan/editpelanggan.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:latihan_ukk/registerpelanggan.dart';
+import 'package:latihan_ukk/pelanggan/registerpelanggan.dart';
 
 class PelangganListPage extends StatefulWidget {
   const PelangganListPage({super.key});
@@ -141,7 +141,8 @@ class _PelangganListPageState extends State<PelangganListPage> {
                         Text(
                           pelanggan['Alamat'] ?? 'No Alamat',
                           style: TextStyle(
-                              fontSize: 14, fontStyle: FontStyle.italic),
+                              fontSize: 14,
+                            ),
                         ),
                         Text(
                           pelanggan['NomorTelepon'] ?? 'No Nomor',
