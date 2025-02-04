@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:latihan_ukk/produk/penjualan.dart';
+import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Registerpelanggan extends StatefulWidget {
@@ -21,29 +21,22 @@ class _RegisterpelangganState extends State<Registerpelanggan> {
   Future<void> tambahpelanggan(
       String NamaPelanggan, String Alamat, String notlp) async {
     try {
-      final response = await Supabase.instance.client.from('pelanggan').insert([
+      await Supabase.instance.client.from('pelanggan').insert([
         {
           'NamaPelanggan': NamaPelanggan,
           'Alamat': Alamat,
           'NomorTelepon': notlp
         }
       ]);
-      if (response == null) {
+  
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registrasi berhasil.'),
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context,);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registrasi tidak berhasil'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+        Navigator.pop(context);
+      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Terjadi kesalahan: $Error')),
@@ -196,7 +189,7 @@ class _RegisterpelangganState extends State<Registerpelanggan> {
                           NamaPelanggan, Alamat, NomorTelepon);
                     },
                     child: Text(
-                      "Register",
+                      "Tambah",
                       style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),

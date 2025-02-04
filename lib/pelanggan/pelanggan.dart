@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:latihan_ukk/login.dart';
 import 'package:latihan_ukk/pelanggan/editpelanggan.dart';
+import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latihan_ukk/pelanggan/registerpelanggan.dart';
+import 'package:latihan_ukk/register.dart';
 
 class PelangganListPage extends StatefulWidget {
-  const PelangganListPage({super.key});
+  final Map user;
+  const PelangganListPage({super.key, required this.user});
 
   @override
   State<PelangganListPage> createState() => _PelangganListPageState();
@@ -12,6 +16,7 @@ class PelangganListPage extends StatefulWidget {
 
 class _PelangganListPageState extends State<PelangganListPage> {
   List<Map<String, dynamic>> Pelanggan = [];
+  List<Map<String, dynamic>> User = [];
 
   @override
   void initState() {
@@ -25,6 +30,18 @@ class _PelangganListPageState extends State<PelangganListPage> {
       // print('Response from Supabase: $response');
       setState(() {
         Pelanggan = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> initialis() async {
+    try {
+      final response = await Supabase.instance.client.from('user').select();
+      // print('Response from Supabase: $response');
+      setState(() {
+        User = List<Map<String, dynamic>>.from(response);
       });
     } catch (e) {
       print("Error fetching data: $e");
@@ -83,18 +100,92 @@ class _PelangganListPageState extends State<PelangganListPage> {
     }
   }
 
+  Future<void> tambahuser(String username, String password) async {
+    try {
+      final response = await Supabase.instance.client.from('user').insert([
+        {
+          'Username': username,
+          'Password': password,
+        }
+      ]);
+      if (response != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registrasi gagal: $e')),
+      );
+    }
+  }
+
   @override
 
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAF3E0),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+      drawer: Drawer(
+        backgroundColor: Colors.white,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [
+              Color.fromARGB(255, 0, 26, 255),
+              Colors.blue,
+              Colors.lightBlue,
+            ], begin: Alignment.topLeft)),
+            accountName: Text(widget.user['username']  ?? 'Unknow User'),
+            accountEmail: Text(
+                '(${widget.user['prefilage']})'),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: const Color.fromARGB(255, 255, 252, 221),
+              child: Text(
+                widget.user['username'].toString().toUpperCase()[0],
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+          ),
+            widget.user['prefilage'] == 'admin'
+                ? ListTile(
+                    leading: Icon(Icons.person_add),
+                    title: Text('register petugas'),
+                    onTap: () {
+                      _AddUser(context);
+                    },
+                  )
+                : SizedBox(),
+                ListTile(
+                    leading: Icon(Icons.shopping_cart),
+                    title: Text('daftar produk'),
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Produk(user: widget.user,)),
+                      );
+                    },
+                  ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => Login()),
+                );
+              },
+            ),
+          ],
         ),
+      ),
+      appBar: AppBar(
         centerTitle: true,
         title: Text(
           'Daftar Pelanggan',
@@ -103,6 +194,7 @@ class _PelangganListPageState extends State<PelangganListPage> {
           ),
         ),
         backgroundColor: const Color(0xFF003366),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             onPressed: fetch,
@@ -153,7 +245,8 @@ class _PelangganListPageState extends State<PelangganListPage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
+                        widget.user['prefilage'] == 'admin'
+                        ? IconButton(
                             onPressed: () async {
                                 var result =
                                     await Navigator.push(context, MaterialPageRoute(builder: (context)=> Editpelanggan(pelanggan: pelanggan)));
@@ -164,8 +257,10 @@ class _PelangganListPageState extends State<PelangganListPage> {
                             icon: const Icon(
                               Icons.edit,
                               color: Colors.blue,
-                            )),
-                        IconButton(
+                            ))
+                          : SizedBox(),
+                        widget.user['prefilage'] == 'admin'
+                        ? IconButton(
                             onPressed: () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
@@ -199,13 +294,17 @@ class _PelangganListPageState extends State<PelangganListPage> {
                             icon: const Icon(
                               Icons.delete,
                               color: Colors.red,
-                            )),
+                            )
+                          )
+                          : SizedBox(),
                       ],
                     ),
                   ),
                 );
               }),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: 
+      widget.user['prefilage'] == 'admin' 
+      ? FloatingActionButton(
         onPressed: () {
           _AddPelanggan(context);
         },
@@ -214,7 +313,8 @@ class _PelangganListPageState extends State<PelangganListPage> {
           color: Colors.white,
           ),
         backgroundColor: const Color(0xFF003366),
-      ),
+      )
+      : null
     );
   }
  void _AddPelanggan(BuildContext context) async {
@@ -229,6 +329,26 @@ class _PelangganListPageState extends State<PelangganListPage> {
     );
     if (result == true) {
       fetch();
+    }
+  }
+  void _AddUser(BuildContext context) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return Register(onAddUser: (
+          Username,
+          Password,
+        ) {
+          tambahuser(
+            Username,
+            Password,
+          );
+          Navigator.pop(context, true);
+        });
+      },
+    );
+    if (result == true) {
+      initialis();
     }
   }
 }

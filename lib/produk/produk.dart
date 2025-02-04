@@ -2,22 +2,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/login.dart';
 import 'package:latihan_ukk/pelanggan/pelanggan.dart';
+import 'package:latihan_ukk/penjualan/penjualan.dart';
 import 'package:latihan_ukk/produk/tambah.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latihan_ukk/register.dart';
 import 'edit.dart';
 
-class Penjualan extends StatefulWidget {
+class Produk extends StatefulWidget {
   final Map user;
 
-  const Penjualan({super.key, required this.user});
+  const Produk({super.key, required this.user});
 
   @override
-  State<Penjualan> createState() => _PenjualanState();
+  State<Produk> createState() => _ProdukState();
 }
 
-class _PenjualanState extends State<Penjualan> {
+class _ProdukState extends State<Produk> {
   List<Map<String, dynamic>> Barang = [];
   List<Map<String, dynamic>> User = [];
 
@@ -250,22 +251,21 @@ class _PenjualanState extends State<Penjualan> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            UserAccountsDrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 30,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'User Name',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                ],
+                  gradient: LinearGradient(colors: [
+                Color.fromARGB(255, 0, 26, 255),
+                Colors.blue,
+                Colors.lightBlue,
+              ], begin: Alignment.topLeft)),
+              accountName: Text(widget.user['username'] ?? 'Unknow User'),
+              accountEmail: Text('(${widget.user['prefilage']})'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: const Color.fromARGB(255, 255, 252, 221),
+                child: Text(
+                  widget.user['username'].toString().toUpperCase()[0],
+                  style: TextStyle(fontSize: 24),
+                ),
               ),
             ),
             widget.user['prefilage'] == 'admin'
@@ -277,19 +277,32 @@ class _PenjualanState extends State<Penjualan> {
                     },
                   )
                 : SizedBox(),
-            widget.user['prefilage'] == 'admin'
-                ? ListTile(
-                    leading: Icon(Icons.person_search),
-                    title: Text('daftar pelanggan'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PelangganListPage()),
-                      );
-                    },
-                  )
-                : SizedBox(),
+            ListTile(
+              leading: Icon(Icons.person_search),
+              title: Text('daftar pelanggan'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PelangganListPage(
+                            user: widget.user,
+                          )),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.pageview),
+              title: Text('daftar penjualan'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => Penjualan(
+                            login: widget.user,
+                          )),
+                );
+              },
+            ),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Logout'),
@@ -403,7 +416,7 @@ class _PenjualanState extends State<Penjualan> {
     );
   }
 
-  void _showAddDialog(BuildContext context) async {
+  _showAddDialog(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {

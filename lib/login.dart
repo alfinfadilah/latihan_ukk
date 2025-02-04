@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:latihan_ukk/produk/penjualan.dart';
+import 'package:latihan_ukk/produk/produk.dart';
+import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Login extends StatefulWidget {
@@ -46,7 +47,7 @@ class _LoginState extends State<Login> {
       _passwordController.clear();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Penjualan(user: response,)),
+        MaterialPageRoute(builder: (context) => Produk(user: response,)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -59,7 +60,7 @@ class _LoginState extends State<Login> {
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Terjadi kesalahan: $error'),
+        content: Text('Username atau Password salah'),
         backgroundColor: Colors.red,
       ),
     );
@@ -143,7 +144,7 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 30,
                 ),
                 SizedBox(
                   width: double.infinity,

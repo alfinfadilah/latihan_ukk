@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:latihan_ukk/login.dart';
-import 'package:latihan_ukk/produk/penjualan.dart';
+import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Register extends StatefulWidget {
@@ -144,7 +144,6 @@ class _RegisterState extends State<Register> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
                       color: Colors.white),
                   child: DropDownTextField(
                     controller: _prefilageController,
@@ -165,7 +164,7 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 SizedBox(
-                  height: 10,
+                  height: 15,
                 ),
                 SizedBox(
                   width: double.infinity,

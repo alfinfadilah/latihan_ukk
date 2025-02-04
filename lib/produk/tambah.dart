@@ -124,7 +124,9 @@ class _TambahState extends State<Tambah> {
                     height: 16,
                   ),
                   Container(
-                    decoration: BoxDecoration(color: Colors.white),
+                    decoration: BoxDecoration(
+                      color: Colors.white
+                      ),
                     child: DropDownTextField(
                       controller: _jenisController,
                       textFieldDecoration:  const InputDecoration(
