@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latihan_ukk/login.dart';
 import 'package:latihan_ukk/pelanggan/editpelanggan.dart';
+import 'package:latihan_ukk/penjualan/penjualan.dart';
 import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:latihan_ukk/pelanggan/registerpelanggan.dart';
@@ -17,16 +18,24 @@ class PelangganListPage extends StatefulWidget {
 class _PelangganListPageState extends State<PelangganListPage> {
   List<Map<String, dynamic>> Pelanggan = [];
   List<Map<String, dynamic>> User = [];
+  String _searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetch();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   Future<void> fetch() async {
     try {
-      final response = await Supabase.instance.client.from('pelanggan').select();
+      final response =
+          await Supabase.instance.client.from('pelanggan').select();
       // print('Response from Supabase: $response');
       setState(() {
         Pelanggan = List<Map<String, dynamic>>.from(response);
@@ -48,14 +57,14 @@ class _PelangganListPageState extends State<PelangganListPage> {
     }
   }
 
-
-  Future<void> tambahpelanggan(String NamaPelanggan, String Alamat, String NomorTelepon) async {
+  Future<void> tambahpelanggan(
+      String NamaPelanggan, String Alamat, String NomorTelepon) async {
     try {
       final response = await Supabase.instance.client.from('pelanggan').insert([
         {
           'NamaPelanggan': NamaPelanggan,
           'Alamat': Alamat,
-          'NomorTelepon' : NomorTelepon
+          'NomorTelepon': NomorTelepon
         }
       ]);
       if (response == null) {
@@ -125,203 +134,247 @@ class _PelangganListPageState extends State<PelangganListPage> {
   }
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAF3E0),
-      drawer: Drawer(
-        backgroundColor: Colors.white,
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-              Color.fromARGB(255, 0, 26, 255),
-              Colors.blue,
-              Colors.lightBlue,
-            ], begin: Alignment.topLeft)),
-            accountName: Text(widget.user['username']  ?? 'Unknow User'),
-            accountEmail: Text(
-                '(${widget.user['prefilage']})'),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: const Color.fromARGB(255, 255, 252, 221),
-              child: Text(
-                widget.user['username'].toString().toUpperCase()[0],
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
-            widget.user['prefilage'] == 'admin'
-                ? ListTile(
-                    leading: Icon(Icons.person_add),
-                    title: Text('register petugas'),
-                    onTap: () {
-                      _AddUser(context);
-                    },
-                  )
-                : SizedBox(),
-                ListTile(
-                    leading: Icon(Icons.shopping_cart),
-                    title: Text('daftar produk'),
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Produk(user: widget.user,)),
-                      );
-                    },
+        backgroundColor: const Color(0xFFFAF3E0),
+        drawer: Drawer(
+          backgroundColor: Colors.white,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              UserAccountsDrawerHeader(
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [
+                  Color.fromARGB(255, 0, 26, 255),
+                  Colors.blue,
+                  Colors.lightBlue,
+                ], begin: Alignment.topLeft)),
+                accountName: Text(widget.user['username'] ?? 'Unknow User'),
+                accountEmail: Text('(${widget.user['prefilage']})'),
+                currentAccountPicture: CircleAvatar(
+                  backgroundColor: const Color.fromARGB(255, 255, 252, 221),
+                  child: Text(
+                    widget.user['username'].toString().toUpperCase()[0],
+                    style: TextStyle(fontSize: 24),
                   ),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
-              onTap: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => Login()),
-                );
-              },
+                ),
+              ),
+              widget.user['prefilage'] == 'admin'
+                  ? ListTile(
+                      leading: Icon(Icons.person_add),
+                      title: Text('register petugas'),
+                      onTap: () {
+                        _AddUser(context);
+                      },
+                    )
+                  : SizedBox(),
+              ListTile(
+                leading: Icon(Icons.shopping_cart),
+                title: Text('daftar produk'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Produk(
+                              user: widget.user,
+                            )),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.pageview),
+                title: Text('daftar penjualan'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Penjualan(
+                              login: widget.user,
+                            )),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.logout),
+                title: Text('Logout'),
+                onTap: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Login()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        appBar: AppBar(
+          centerTitle: true,
+          title: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+                hintText: "Cari Pelanggan",
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.grey,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                fillColor: Colors.white,
+                filled: true),
+          ),
+          backgroundColor: const Color(0xFF003366),
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              onPressed: fetch,
+              icon: const Icon(Icons.refresh),
+              color: Color(0xFFFAF3E0),
             ),
           ],
         ),
-      ),
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Daftar Pelanggan',
-          style: TextStyle(
-            color: Color(0xFFFAF3E0),
-          ),
-        ),
-        backgroundColor: const Color(0xFF003366),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: fetch,
-            icon: const Icon(Icons.refresh),
-            color: Color(0xFFFAF3E0),
-          ),
-        ],
-      ),
-      body: Pelanggan.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              itemCount: Pelanggan.length,
-              itemBuilder: (context, index) {
-                final pelanggan = Pelanggan[index]; 
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  color: Colors.white, // White card background
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: const BorderSide(
-                        color: Color(0xFF003366), width: 1), // Navy blue border
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      pelanggan['NamaPelanggan'] ?? 'No Name',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
+        body: Pelanggan.isEmpty
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView.builder(
+                itemCount: Pelanggan.where((pelanggan) {
+                  final nama = pelanggan['NamaPelanggan']?.toLowerCase() ?? '';
+                  final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
+                  final nomor = pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                  return nama.contains(_searchQuery) ||
+                      alamat.contains(_searchQuery) ||
+                      nomor.contains(_searchQuery);
+                }).length,
+                itemBuilder: (context, index) {
+                  final filteredPelanggan = Pelanggan.where((pelanggan) {
+                    final nama =
+                        pelanggan['NamaPelanggan']?.toLowerCase() ?? '';
+                    final alamat = pelanggan['Alamat']?.toLowerCase() ?? '';
+                    final nomor =
+                        pelanggan['NomorTelepon']?.toLowerCase() ?? '';
+                    return nama.contains(_searchQuery) ||
+                        alamat.contains(_searchQuery) ||
+                        nomor.startsWith(_searchQuery);
+                  }).toList();
+
+                  final pelanggan = filteredPelanggan[index];
+
+                  return Card(
+                    margin:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    color: Colors.white, // White card background
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(
+                          color: Color(0xFF003366),
+                          width: 1), // Navy blue border
                     ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          pelanggan['Alamat'] ?? 'No Alamat',
-                          style: TextStyle(
+                    child: ListTile(
+                      title: Text(
+                        pelanggan['NamaPelanggan'] ?? 'No Name',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pelanggan['Alamat'] ?? 'No Alamat',
+                            style: TextStyle(
                               fontSize: 14,
                             ),
-                        ),
-                        Text(
-                          pelanggan['NomorTelepon'] ?? 'No Nomor',
-                          style: TextStyle(fontSize: 12),
-                        )
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        widget.user['prefilage'] == 'admin'
-                        ? IconButton(
-                            onPressed: () async {
-                                var result =
-                                    await Navigator.push(context, MaterialPageRoute(builder: (context)=> Editpelanggan(pelanggan: pelanggan)));
-                                if (result == 'success') {
-                                  fetch();
-                                }
-                              },
-                            icon: const Icon(
-                              Icons.edit,
-                              color: Colors.blue,
-                            ))
-                          : SizedBox(),
-                        widget.user['prefilage'] == 'admin'
-                        ? IconButton(
-                            onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text('Konfirmasi'),
-                                      content: Text(
-                                          'Apakah Anda yakin ingin menghapus produk ini?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: Text('Batal'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                              fetch();
-                                              Navigator.pop(context, true);
-                                          },
-                                              
-                                          child: Text('Hapus'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                                if (confirm == true) {
-                                  hapuspelanggan(pelanggan['PelangganId']);
-                                }
-                            },
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            )
+                          ),
+                          Text(
+                            pelanggan['NomorTelepon'] ?? 'No Nomor',
+                            style: TextStyle(fontSize: 12),
                           )
-                          : SizedBox(),
-                      ],
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          widget.user['prefilage'] == 'admin'
+                              ? IconButton(
+                                  onPressed: () async {
+                                    var result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Editpelanggan(
+                                                pelanggan: pelanggan)));
+                                    if (result == 'success') {
+                                      fetch();
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    color: Colors.blue,
+                                  ))
+                              : SizedBox(),
+                          widget.user['prefilage'] == 'admin'
+                              ? IconButton(
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text('Konfirmasi'),
+                                          content: Text(
+                                              'Apakah Anda yakin ingin menghapus produk ini?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: Text('Batal'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                fetch();
+                                                Navigator.pop(context, true);
+                                              },
+                                              child: Text('Hapus'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                    if (confirm == true) {
+                                      hapuspelanggan(pelanggan['PelangganId']);
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ))
+                              : SizedBox(),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              }),
-      floatingActionButton: 
-      widget.user['prefilage'] == 'admin' 
-      ? FloatingActionButton(
-        onPressed: () {
-          _AddPelanggan(context);
-        },
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          ),
-        backgroundColor: const Color(0xFF003366),
-      )
-      : null
-    );
+                  );
+                }),
+        floatingActionButton: widget.user['prefilage'] == 'admin'
+            ? FloatingActionButton(
+                onPressed: () {
+                  _AddPelanggan(context);
+                },
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+                backgroundColor: const Color(0xFF003366),
+              )
+            : null);
   }
- void _AddPelanggan(BuildContext context) async {
+
+  void _AddPelanggan(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
-        return Registerpelanggan(onAddpelanggan: (NamaPelanggan, Alamat, NomorTelepon) {
+        return Registerpelanggan(
+            onAddpelanggan: (NamaPelanggan, Alamat, NomorTelepon) {
           tambahpelanggan(NamaPelanggan, Alamat, NomorTelepon);
           Navigator.pop(context, true);
         });
@@ -331,6 +384,7 @@ class _PelangganListPageState extends State<PelangganListPage> {
       fetch();
     }
   }
+
   void _AddUser(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
@@ -352,4 +406,3 @@ class _PelangganListPageState extends State<PelangganListPage> {
     }
   }
 }
-

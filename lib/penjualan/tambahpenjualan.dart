@@ -167,8 +167,18 @@ class _SalesPageState extends State<SalesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Penjualan'),
+        title: const Text('Tambah Penjualan'),
+        titleTextStyle: TextStyle(
+          color: Color.fromARGB(255, 255, 252, 221),
+        ),
+        centerTitle: true,
         backgroundColor: const Color(0xFF003366),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: StatefulBuilder(
         builder: (context, setState) {

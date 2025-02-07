@@ -11,6 +11,7 @@ class Penjualan extends StatefulWidget {
   final Map login;
   const Penjualan({super.key, required this.login});
 
+
   @override
   State<Penjualan> createState() => _PenjualanState();
 }
@@ -21,6 +22,8 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
   List detailPenjualan = [];
   List produk=[];
   List pelanggan=[];
+  String _searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
 
   void fetchSales() async {
     var myProduk = await Supabase.instance.client
@@ -52,6 +55,11 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     fetchSales();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
     myTabControl = TabController(length: 2, vsync: this);
   }
 
@@ -63,14 +71,20 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
   }
 
   generateSales() {
+    var filteredSales = penjualan.where((sale) {
+    var tanggalPenjualan = DateFormat('yyyy-MM-dd').format(
+      DateTime.parse(sale['TanggalPenjualan'])
+    );
+    return _searchQuery.isEmpty || tanggalPenjualan.contains(_searchQuery);
+  }).toList();
     return GridView.count(
       crossAxisCount: 1,
       childAspectRatio: 2,
       children: [
-        ...List.generate(penjualan.length, (index) {
+        ...List.generate(filteredSales.length, (index) {
           var tanggalPenjualan = DateFormat(
             'dd MMMM yyyy',
-          ).format(DateTime.parse(penjualan[index]['TanggalPenjualan']));
+          ).format(DateTime.parse(filteredSales[index]['TanggalPenjualan']));
           return Card(
               elevation: 15,
               child: Padding(
@@ -206,9 +220,30 @@ class _PenjualanState extends State<Penjualan> with TickerProviderStateMixin {
       appBar: AppBar(
         // ),
         centerTitle: true,
-        title: Text('Sales'),
+        title: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+              hintText: "Cari Riwayat Penjualan",
+              prefixIcon: Icon(
+                Icons.search,
+                color: Colors.grey,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              fillColor: Colors.white,
+              filled: true),
+        ),
         foregroundColor: Colors.white,
         backgroundColor: const Color(0xFF003366),
+        actions: [
+          IconButton(
+            onPressed: fetchSales,
+            icon: const Icon(Icons.refresh),
+            color: Color(0xFFFAF3E0),
+          ),
+        ],
       ),
       drawer: Drawer(
           child: ListView(

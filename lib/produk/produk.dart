@@ -21,6 +21,8 @@ class Produk extends StatefulWidget {
 class _ProdukState extends State<Produk> {
   List<Map<String, dynamic>> Barang = [];
   List<Map<String, dynamic>> User = [];
+  String _searchQuery = "";
+  final TextEditingController _searchController = TextEditingController();
 
   var jenis = [
     null,
@@ -33,6 +35,11 @@ class _ProdukState extends State<Produk> {
   void initState() {
     super.initState();
     initializeData();
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   Future<void> initializeData() async {
@@ -116,13 +123,13 @@ class _ProdukState extends State<Produk> {
     }
   }
 
+
   GridView card([String? jenis]) {
-    var filterData;
-    if (jenis == null) {
-      filterData = Barang;
-    } else {
-      filterData = Barang.where((item) => item['Jenis'] == jenis).toList();
-    }
+    var filterData = Barang.where((item) {
+    bool matchesJenis = jenis == null || item['Jenis'] == jenis;
+    bool matchesSearch = item['NamaProduk'].toLowerCase().startsWith(_searchQuery);
+    return matchesJenis && matchesSearch;
+  }).toList();
 
     return GridView.count(
       crossAxisCount: 1,
@@ -322,6 +329,7 @@ class _ProdukState extends State<Produk> {
         foregroundColor: Colors.white,
         elevation: 1,
         title: TextField(
+          controller: _searchController,
           decoration: InputDecoration(
               hintText: "Cari Produk",
               prefixIcon: Icon(
@@ -336,20 +344,6 @@ class _ProdukState extends State<Produk> {
               filled: true),
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.qr_code_scanner_rounded,
-              color: Colors.white,
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.calculate,
-              color: Colors.white,
-            ),
-          ),
           IconButton(
             onPressed: initializeData,
             icon: const Icon(Icons.refresh),
