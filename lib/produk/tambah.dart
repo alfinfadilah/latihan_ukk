@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:dropdown_textfield/dropdown_textfield.dart';
@@ -90,6 +91,7 @@ class _TambahState extends State<Tambah> {
                   Container(
                     decoration: BoxDecoration(color: Colors.white),
                     child: TextFormField(
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: _hargaController,
                       decoration: const InputDecoration(
                         labelText: 'Harga',
@@ -107,6 +109,7 @@ class _TambahState extends State<Tambah> {
                   Container(
                     decoration: BoxDecoration(color: Colors.white),
                     child: TextFormField(
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       controller: _stokController,
                       decoration: const InputDecoration(
                         labelText: 'Stok',
