@@ -18,22 +18,48 @@ class _TambahState extends State<Tambah> {
   final TextEditingController _namaprodukController = TextEditingController();
   final TextEditingController _hargaController = TextEditingController();
   final TextEditingController _stokController = TextEditingController();
-  final SingleValueDropDownController _jenisController = SingleValueDropDownController();
+  final SingleValueDropDownController _jenisController =
+      SingleValueDropDownController();
+
+  Future<bool> cekNamaBarang(String namaBarang) async {
+    final response = await Supabase.instance.client
+        .from('barang')
+        .select()
+        .eq('NamaProduk', namaBarang).maybeSingle();
+        return response != null;
+  }
 
   Future<void> tambah(
       String NamaProduk, String Harga, String Stok, String Jenis) async {
-    final response = await Supabase.instance.client.from('Barang').insert([
-      {'NamaProduk': NamaProduk, 'Harga': Harga, 'Stok': Stok, 'Jenis': Jenis}
-    ]);
+    try {
+    bool exists = await cekNamaBarang(NamaProduk);
 
-    if (response == null) {
-      Navigator.pop(context);
+    if (exists) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Nama barang sudah ada, gunakan nama lain.')),
+      );
+      return;
+    }
+
+    final response = await Supabase.instance.client.from('barang').insert([
+      {'NamaProduk': NamaProduk, 'Harga': Harga, 'Stok': Stok, 'Jenis': Jenis}
+    ]).select();
+
+    if (response.isNotEmpty) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Eror menambahkan barang')),
+        SnackBar(content: Text('Gagal menambahkan barang')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Terjadi kesalahan: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -127,12 +153,10 @@ class _TambahState extends State<Tambah> {
                     height: 16,
                   ),
                   Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white
-                      ),
+                    decoration: BoxDecoration(color: Colors.white),
                     child: DropDownTextField(
                       controller: _jenisController,
-                      textFieldDecoration:  const InputDecoration(
+                      textFieldDecoration: const InputDecoration(
                         labelText: 'Jenis',
                         border: OutlineInputBorder(),
                       ),
@@ -155,7 +179,7 @@ class _TambahState extends State<Tambah> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formkey.currentState?.validate() ?? false) {
-                          widget.onAddBarang(
+                          tambah(
                               _namaprodukController.text,
                               _hargaController.text,
                               _stokController.text,
