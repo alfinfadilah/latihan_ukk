@@ -8,7 +8,11 @@ class SalesPage extends StatefulWidget {
   final List produk;
   final List pelanggan;
 
-  const SalesPage({Key? key, required this.produk, required this.pelanggan, required this.login})
+  const SalesPage(
+      {Key? key,
+      required this.produk,
+      required this.pelanggan,
+      required this.login})
       : super(key: key);
 
   @override
@@ -43,9 +47,10 @@ class _SalesPageState extends State<SalesPage> {
             .insert({
               'PelangganId': _pelangganController.dropDownValue!.value,
               'TotalHarga': _totalHarga
-            }).select().single();
-            // print(penjualan);
-            
+            })
+            .select()
+            .single();
+        // print(penjualan);
 
         if (penjualan.isNotEmpty) {
           print(penjualan);
@@ -58,23 +63,18 @@ class _SalesPageState extends State<SalesPage> {
               'Subtotal': (produk['Subtotal'] ?? 0) as int
             });
           }
-        
 
           final detail = await Supabase.instance.client
               .from('detailpenjualan')
-              .insert(_detailSales)
-              ;
+              .insert(_detailSales);
 
           if (detail == null) {
-
             for (var produk in _selectedProduk) {
               produk.remove('Subtotal');
               produk['Stok'] = produk['Stok'] - produk['JumlahProduk'];
               produk.remove('JumlahProduk');
             }
             // print(_selectedProduk);
-
-            
 
             final produkUpdate = await Supabase.instance.client
                 .from('barang')
@@ -97,35 +97,56 @@ class _SalesPageState extends State<SalesPage> {
   // Function to show the dialog to select product and quantity
   void _showAddProductDialog() {
     TextEditingController jumlahController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Pilih Barang dan Jumlah'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField(
-                decoration: const InputDecoration(labelText: 'Pilih Barang'),
-                items: widget.produk.map((produk) {
-                  return DropdownMenuItem<Map<String, dynamic>>(
-                    value: produk,
-                    child: Text(produk['NamaProduk']),
-                  );
-                }).toList(),
-                onChanged: (Map<String, dynamic>? value) {
-                  setState(() {
-                    _selectedProduct = value;  // Update the selected product
-                  });
-                },
-              ),
-              TextField(
-                controller: jumlahController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Jumlah Barang'),
-              ),
-            ],
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField(
+                  decoration: const InputDecoration(labelText: 'Pilih Barang'),
+                  items: widget.produk.map((produk) {
+                    return DropdownMenuItem<Map<String, dynamic>>(
+                      value: produk,
+                      child: Text(produk['NamaProduk']),
+                    );
+                  }).toList(),
+                  onChanged: (Map<String, dynamic>? value) {
+                    setState(() {
+                      _selectedProduct = value; // Update the selected product
+                    });
+                  },
+                ),
+                TextFormField(
+                  controller: jumlahController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Jumlah Barang'),
+                  validator: (value) { // 🔥 Validasi Input
+                      if (value == null || value.isEmpty) {
+                        return 'Jumlah tidak boleh kosong';
+                      }
+                      int jumlah = int.tryParse(value) ?? 0;
+
+                      if (_selectedProduct == null) {
+                        return 'Pilih produk terlebih dahulu';
+                      }
+                      if (jumlah <= 0) {
+                        return 'Jumlah harus lebih dari 0';
+                      }
+                      if (jumlah > _selectedProduct!['Stok']) {
+                        return 'Stok tidak mencukupi';
+                      }
+                      return null;
+                    },
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -136,7 +157,7 @@ class _SalesPageState extends State<SalesPage> {
             ),
             TextButton(
               onPressed: () {
-                if (_selectedProduct != null) {
+                if (_formKey.currentState!.validate()) {
                   final jumlah = int.parse(jumlahController.text);
                   final subtotal = _selectedProduct!['Harga'] * jumlah;
 
@@ -144,7 +165,7 @@ class _SalesPageState extends State<SalesPage> {
                     _selectedProduk.add({
                       'ProdukId': _selectedProduct!['ProdukId'],
                       'NamaProduk': _selectedProduct!['NamaProduk'],
-                      'Stok':_selectedProduct!['Stok'],
+                      'Stok': _selectedProduct!['Stok'],
                       'JumlahProduk': jumlah,
                       'Subtotal': subtotal,
                     });
@@ -230,8 +251,8 @@ class _SalesPageState extends State<SalesPage> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
-                                                _selectedProduk[index]['NamaProduk']),
+                                            Text(_selectedProduk[index]
+                                                ['NamaProduk']),
                                             Text(
                                                 'Jumlah dibeli:${_selectedProduk[index]['JumlahProduk']}'),
                                             Text(
@@ -243,7 +264,8 @@ class _SalesPageState extends State<SalesPage> {
                                           onPressed: () {
                                             setState(() {
                                               _totalHarga -=
-                                                  (_selectedProduk[index] ['Subtotal'] as int);
+                                                  (_selectedProduk[index]
+                                                      ['Subtotal'] as int);
                                               _selectedProduk.removeAt(index);
                                             });
                                           },
@@ -258,7 +280,6 @@ class _SalesPageState extends State<SalesPage> {
                           : const Center(
                               child: Text(
                                   'Tambahkan barang dan jumlah yang dibeli')),
-
                     ),
                   ),
                   const SizedBox(height: 20),
