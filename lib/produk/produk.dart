@@ -40,6 +40,14 @@ class _ProdukState extends State<Produk> {
         _searchQuery = _searchController.text.toLowerCase();
       });
     });
+
+    Timer.periodic(Duration(seconds: 5), (timer) {
+    if (mounted) {
+      initializeData();
+    } else {
+      timer.cancel();
+    }
+  });
   }
 
   Future<void> initializeData() async {
