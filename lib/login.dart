@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latihan_ukk/beranda.dart';
 import 'package:latihan_ukk/produk/produk.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -45,7 +46,7 @@ class _LoginState extends State<Login> {
       _passwordController.clear();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Produk(user: response,)),
+        MaterialPageRoute(builder: (context) => Beranda(user: response,)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
